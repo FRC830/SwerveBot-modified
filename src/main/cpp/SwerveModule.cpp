@@ -8,8 +8,12 @@
 #include <wpi/math>
 
 SwerveModule::SwerveModule(const int driveMotorChannel,
-                           const int turningMotorChannel)
-    : m_driveMotor(driveMotorChannel), m_turningMotor(turningMotorChannel) {
+                           const int turningMotorChannel,
+                           const int encoderChannel)
+    : m_driveMotor(driveMotorChannel), m_turningMotor(turningMotorChannel),
+      m_driveEncoder(encoderChannel, encoderChannel + 1),
+      m_turningEncoder(encoderChannel + 2, encoderChannel + 3)
+     {
   // Set the distance per pulse for the drive encoder. We can simply use the
   // distance traveled for one rotation of the wheel divided by the encoder
   // resolution.
