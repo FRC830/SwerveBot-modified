@@ -4,6 +4,8 @@
 
 #include "Drivetrain.h"
 
+#include <frc/smartdashboard/SmartDashboard.h>
+
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
                        units::meters_per_second_t ySpeed,
                        units::radians_per_second_t rot, bool fieldRelative) {
@@ -26,4 +28,6 @@ void Drivetrain::UpdateOdometry() {
   m_odometry.Update(m_gyro.GetRotation2d(), m_frontLeft.GetState(),
                     m_frontRight.GetState(), m_backLeft.GetState(),
                     m_backRight.GetState());
+  m_field.SetRobotPose(m_odometry.GetPose());
+  frc::SmartDashboard::PutData("Field", &m_field);
 }

@@ -8,6 +8,7 @@
 #include <frc/geometry/Translation2d.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/kinematics/SwerveDriveOdometry.h>
+#include <frc/smartdashboard/Field2d.h>
 #include <wpi/math>
 
 #include "SwerveModule.h"
@@ -47,4 +48,6 @@ class Drivetrain {
       m_backRightLocation};
 
   frc::SwerveDriveOdometry<4> m_odometry{m_kinematics, m_gyro.GetRotation2d()};
+
+  frc::Field2d m_field;
 };
