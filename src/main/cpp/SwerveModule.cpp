@@ -53,4 +53,6 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& state) {
   // Set the motor outputs.
   m_driveMotor.SetVoltage(units::volt_t{driveOutput} + driveFeedforward);
   m_turningMotor.SetVoltage(units::volt_t{turnOutput} + turnFeedforward);
+
+  m_driveEncoderSim.SetRate(double(state.speed));
 }

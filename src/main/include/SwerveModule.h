@@ -10,6 +10,7 @@
 #include <frc/controller/ProfiledPIDController.h>
 #include <frc/controller/SimpleMotorFeedforward.h>
 #include <frc/kinematics/SwerveModuleState.h>
+#include <frc/simulation/EncoderSim.h>
 #include <units/angular_velocity.h>
 #include <units/time.h>
 #include <units/velocity.h>
@@ -36,6 +37,9 @@ class SwerveModule {
 
   frc::Encoder m_driveEncoder;
   frc::Encoder m_turningEncoder;
+
+  frc::sim::EncoderSim m_driveEncoderSim{m_driveEncoder};
+  frc::sim::EncoderSim m_turningEncoderSim{m_turningEncoder};
 
   frc2::PIDController m_drivePIDController{1.0, 0, 0};
   frc::ProfiledPIDController<units::radians> m_turningPIDController{
