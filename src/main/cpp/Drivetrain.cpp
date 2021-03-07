@@ -4,6 +4,8 @@
 
 #include "Drivetrain.h"
 
+#include <frc2/Timer.h>
+
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
                        units::meters_per_second_t ySpeed,
                        units::radians_per_second_t rot, bool fieldRelative) {
@@ -23,7 +25,9 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
 }
 
 void Drivetrain::UpdateOdometry() {
-  m_odometry.Update(m_gyro.GetRotation2d(), m_frontLeft.GetState(),
-                    m_frontRight.GetState(), m_backLeft.GetState(),
-                    m_backRight.GetState());
+  m_poseEstimator.Update(m_gyro.GetRotation2d(), m_frontLeft.GetState(),
+                         m_frontRight.GetState(), m_backLeft.GetState(),
+                         m_backRight.GetState());
+
+  m_field.SetRobotPose(m_poseEstimator.GetEstimatedPosition());
 }

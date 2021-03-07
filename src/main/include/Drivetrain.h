@@ -5,11 +5,14 @@
 #pragma once
 
 #include <frc/AnalogGyro.h>
+#include <frc/estimator/SwerveDrivePoseEstimator.h>
 #include <frc/geometry/Translation2d.h>
 #include <frc/kinematics/SwerveDriveKinematics.h>
 #include <frc/kinematics/SwerveDriveOdometry.h>
 #include <wpi/math>
-
+#include <frc/smartdashboard/Field2d.h>
+#include <frc/smartdashboard/SmartDashboard.h>
+#include <frc/simulation/AnalogGyroSim.h>
 #include "SwerveModule.h"
 
 /**
@@ -17,15 +20,17 @@
  */
 class Drivetrain {
  public:
-  Drivetrain() { m_gyro.Reset(); }
+  Drivetrain() {
+      m_gyro.Reset();
+      frc::SmartDashboard::PutData("Field", &m_field);
+    }
 
   void Drive(units::meters_per_second_t xSpeed,
              units::meters_per_second_t ySpeed, units::radians_per_second_t rot,
              bool fieldRelative);
   void UpdateOdometry();
 
-  static constexpr units::meters_per_second_t kMaxSpeed =
-      3.0_mps;  // 3 meters per second
+  static constexpr auto kMaxSpeed = 3.0_mps;  // 3 meters per second
   static constexpr units::radians_per_second_t kMaxAngularSpeed{
       wpi::math::pi};  // 1/2 rotation per second
 
@@ -46,5 +51,12 @@ class Drivetrain {
       m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation,
       m_backRightLocation};
 
-  frc::SwerveDriveOdometry<4> m_odometry{m_kinematics, m_gyro.GetRotation2d()};
+  // Gains are for example purposes only - must be determined for your own
+  // robot!
+  frc::Field2d m_field;
+  frc::SwerveDrivePoseEstimator<4> m_poseEstimator{
+      frc::Rotation2d(), frc::Pose2d(), m_kinematics,
+      {0.1, 0.1, 0.1},   {0.05},        {0.1, 0.1, 0.1}};
+
+  frc::sim::AnalogGyroSim m_gyroSim{m_gyro};
 };

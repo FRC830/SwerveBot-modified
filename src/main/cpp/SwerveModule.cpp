@@ -7,18 +7,19 @@
 #include <frc/geometry/Rotation2d.h>
 #include <wpi/math>
 
+using namespace std;
+
 SwerveModule::SwerveModule(const int driveMotorChannel,
                            const int turningMotorChannel,
                            const int encoderChannel)
-    : m_driveMotor(driveMotorChannel), m_turningMotor(turningMotorChannel),
-      m_driveEncoder(encoderChannel, encoderChannel + 1),
-      m_turningEncoder(encoderChannel + 2, encoderChannel + 3)
-     {
+    : m_driveMotor(driveMotorChannel), m_turningMotor(turningMotorChannel), 
+    m_driveEncoder(encoderChannel, encoderChannel + 1),
+     m_turningEncoder(encoderChannel + 2, encoderChannel + 3) {
   // Set the distance per pulse for the drive encoder. We can simply use the
   // distance traveled for one rotation of the wheel divided by the encoder
   // resolution.
-  m_driveEncoder.SetDistancePerPulse(2 * wpi::math::pi * kWheelRadius /
-                                     kEncoderResolution);
+  m_driveEncoder.SetDistancePerPulse(
+      2 * wpi::math::pi * kWheelRadius.to<double>() / kEncoderResolution);
 
   // Set the distance (in this case, angle) per pulse for the turning encoder.
   // This is the the angle through an entire rotation (2 * wpi::math::pi)
@@ -32,11 +33,20 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
 }
 
 frc::SwerveModuleState SwerveModule::GetState() const {
-  return {units::meters_per_second_t{m_driveEncoder.GetRate()},
-          frc::Rotation2d(units::radian_t(m_turningEncoder.Get()))};
+  cout << units::meters_per_second_t{m_driveEncoder.GetRate()} << endl;
+  cout << units::radian_t(m_turningEncoder.Get()) << endl;
+  return frc::SwerveModuleState{
+    units::meters_per_second_t{m_driveEncoder.GetRate()},
+    frc::Rotation2d(units::radian_t(m_turningEncoder.Get()))
+  };
 }
 
-void SwerveModule::SetDesiredState(const frc::SwerveModuleState& state) {
+void SwerveModule::SetDesiredState(
+    const frc::SwerveModuleState& referenceState) {
+  // Optimize the reference state to avoid spinning further than 90 degrees
+  const auto state = frc::SwerveModuleState::Optimize(
+      referenceState, units::radian_t(m_turningEncoder.Get()));
+
   // Calculate the drive output from the drive PID controller.
   const auto driveOutput = m_drivePIDController.Calculate(
       m_driveEncoder.GetRate(), state.speed.to<double>());
