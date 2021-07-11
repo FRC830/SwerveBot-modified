@@ -10,6 +10,8 @@
 #include <frc/kinematics/SwerveDriveOdometry.h>
 #include <wpi/math>
 
+#include <AHRS.h>
+
 #include "SwerveModule.h"
 
 /**
@@ -17,7 +19,9 @@
  */
 class Drivetrain {
  public:
-  Drivetrain() { m_gyro.Reset(); }
+  Drivetrain() {
+      m_gyro = new AHRS(frc::SPI::Port::kMXP);
+  }
 
   void Drive(units::meters_per_second_t xSpeed,
              units::meters_per_second_t ySpeed, units::radians_per_second_t rot,
@@ -40,11 +44,11 @@ class Drivetrain {
   SwerveModule m_backLeft{15, 22};
   SwerveModule m_backRight{14, 21};
 
-  frc::AnalogGyro m_gyro{0};
+  AHRS *m_gyro;
 
   frc::SwerveDriveKinematics<4> m_kinematics{
       m_frontLeftLocation, m_frontRightLocation, m_backLeftLocation,
       m_backRightLocation};
 
-  frc::SwerveDriveOdometry<4> m_odometry{m_kinematics, m_gyro.GetRotation2d()};
+  frc::SwerveDriveOdometry<4> m_odometry{m_kinematics, {}};
 };
