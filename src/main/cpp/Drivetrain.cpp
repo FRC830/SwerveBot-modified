@@ -3,13 +3,15 @@
 // the WPILib BSD license file in the root directory of this project.
 
 #include "Drivetrain.h"
+#include "frc/geometry/Rotation2d.h"
 
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
                        units::meters_per_second_t ySpeed,
                        units::radians_per_second_t rot, bool fieldRelative) {
+  frc::Rotation2d gyroRotation = units::degree_t{-m_gyro->GetAngle()};
   auto states = m_kinematics.ToSwerveModuleStates(
       fieldRelative ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
-                          xSpeed, ySpeed, rot, m_gyro->GetRotation2d())
+                          xSpeed, ySpeed, rot, gyroRotation)
                     : frc::ChassisSpeeds{xSpeed, ySpeed, rot});
 
   m_kinematics.NormalizeWheelSpeeds(&states, kMaxSpeed);

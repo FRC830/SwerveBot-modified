@@ -12,6 +12,9 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
     : m_driveMotor(driveMotorChannel, rev::CANSparkMax::MotorType::kBrushless),
       m_turningMotor(turningMotorChannel, rev::CANSparkMax::MotorType::kBrushless) {
 
+  m_driveMotor.RestoreFactoryDefaults();
+  m_turningMotor.RestoreFactoryDefaults();
+
   // Set the conversion factor for the drive encoder to the distance (in meters)
   // travelled for each full "tick" of the drive encoder.
   // By default, GetVelocity() returns RPM (motor rev / min), so to convert to m/sec:
@@ -58,6 +61,6 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& state) {
       m_turningPIDController.GetSetpoint().velocity);
 
   // Set the motor outputs.
-  m_driveMotor.SetVoltage(units::volt_t{driveOutput} + driveFeedforward);
-  m_turningMotor.SetVoltage(units::volt_t{turnOutput} + turnFeedforward);
+  m_driveMotor.SetVoltage(units::volt_t{driveOutput});
+  m_turningMotor.SetVoltage(units::volt_t{turnOutput});
 }
