@@ -14,13 +14,23 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
 
   // Set the conversion factor for the drive encoder to the distance (in meters)
   // travelled for each full "tick" of the drive encoder.
+  // By default, GetVelocity() returns RPM (motor rev / min), so to convert to m/sec:
+  //
+  // motor rev     1 min           1 wheel rev          2*pi*kWheelRadius m     m
+  // ---------  *  ------ * ------------------------- * -------------------  = ---
+  //    min        60 sec   kDriveGearRatio motor rev       1 wheel rev        sec
   m_driveMotor.GetEncoder().SetVelocityConversionFactor(
-      2 * wpi::math::pi * kWheelRadius / kDriveGearRatio / kEncoderResolution);
+      (1.0 / 60.0) * (1 / kDriveGearRatio) * (2 * wpi::math::pi * kWheelRadius));
 
   // Set the conversion factor for the turning encoder to the angle (in radians)
   // that the module turns for each full "tick" of the turning encoder.
+  // By default, GetPosition() returns motor revolutions, so to convert to radians:
+  //
+  //                     1 wheel rev           2*pi radians
+  // motor rev * --------------------------- * ------------ = radians
+  //             kTurningGearRatio motor rev   1 wheel rev
   m_turningMotor.GetEncoder().SetPositionConversionFactor(
-      2 * wpi::math::pi / kTurningGearRatio / kEncoderResolution);
+      2 * wpi::math::pi / kTurningGearRatio);
 
   // Limit the PID Controller's input range between -pi and pi and set the input
   // to be continuous.

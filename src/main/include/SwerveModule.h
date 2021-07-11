@@ -24,7 +24,6 @@ class SwerveModule {
 
  private:
   static constexpr double kWheelRadius = 0.0508;
-  static constexpr int kEncoderResolution = 1;  // CANSparkMax encoders have 1 tick per rotation
   static constexpr double kDriveGearRatio = 6.6;
   static constexpr double kTurningGearRatio = 12.8;
 
