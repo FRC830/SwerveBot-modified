@@ -9,7 +9,8 @@
 
 SwerveModule::SwerveModule(const int driveMotorChannel,
                            const int turningMotorChannel)
-    : m_driveMotor(driveMotorChannel), m_turningMotor(turningMotorChannel) {
+    : m_driveMotor(driveMotorChannel, rev::CANSparkMax::MotorType::kBrushless),
+      m_turningMotor(turningMotorChannel, rev::CANSparkMax::MotorType::kBrushless) {
   // Set the distance per pulse for the drive encoder. We can simply use the
   // distance traveled for one rotation of the wheel divided by the encoder
   // resolution.

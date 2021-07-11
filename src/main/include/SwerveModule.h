@@ -5,7 +5,6 @@
 #pragma once
 
 #include <frc/Encoder.h>
-#include <frc/PWMVictorSPX.h>
 #include <frc/controller/PIDController.h>
 #include <frc/controller/ProfiledPIDController.h>
 #include <frc/controller/SimpleMotorFeedforward.h>
@@ -15,6 +14,8 @@
 #include <units/velocity.h>
 #include <units/voltage.h>
 #include <wpi/math>
+
+#include <rev/CANSparkMax.h>
 
 class SwerveModule {
  public:
@@ -31,8 +32,8 @@ class SwerveModule {
   static constexpr auto kModuleMaxAngularAcceleration =
       wpi::math::pi * 2_rad_per_s / 1_s;  // radians per second^2
 
-  frc::PWMVictorSPX m_driveMotor;
-  frc::PWMVictorSPX m_turningMotor;
+  rev::CANSparkMax m_driveMotor;
+  rev::CANSparkMax m_turningMotor;
 
   frc::Encoder m_driveEncoder{0, 1};
   frc::Encoder m_turningEncoder{2, 3};
