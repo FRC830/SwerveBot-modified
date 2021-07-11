@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <frc/Encoder.h>
 #include <frc/controller/PIDController.h>
 #include <frc/controller/ProfiledPIDController.h>
 #include <frc/controller/SimpleMotorFeedforward.h>
@@ -20,12 +19,14 @@
 class SwerveModule {
  public:
   SwerveModule(int driveMotorChannel, int turningMotorChannel);
-  frc::SwerveModuleState GetState() const;
+  frc::SwerveModuleState GetState();
   void SetDesiredState(const frc::SwerveModuleState& state);
 
  private:
   static constexpr double kWheelRadius = 0.0508;
-  static constexpr int kEncoderResolution = 4096;
+  static constexpr int kEncoderResolution = 1;  // CANSparkMax encoders have 1 tick per rotation
+  static constexpr double kDriveGearRatio = 6.6;
+  static constexpr double kTurningGearRatio = 12.8;
 
   static constexpr auto kModuleMaxAngularVelocity =
       wpi::math::pi * 1_rad_per_s;  // radians per second
@@ -34,9 +35,6 @@ class SwerveModule {
 
   rev::CANSparkMax m_driveMotor;
   rev::CANSparkMax m_turningMotor;
-
-  frc::Encoder m_driveEncoder{0, 1};
-  frc::Encoder m_turningEncoder{2, 3};
 
   frc2::PIDController m_drivePIDController{1.0, 0, 0};
   frc::ProfiledPIDController<units::radians> m_turningPIDController{

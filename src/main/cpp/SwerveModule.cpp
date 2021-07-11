@@ -11,16 +11,16 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
                            const int turningMotorChannel)
     : m_driveMotor(driveMotorChannel, rev::CANSparkMax::MotorType::kBrushless),
       m_turningMotor(turningMotorChannel, rev::CANSparkMax::MotorType::kBrushless) {
-  // Set the distance per pulse for the drive encoder. We can simply use the
-  // distance traveled for one rotation of the wheel divided by the encoder
-  // resolution.
-  m_driveEncoder.SetDistancePerPulse(2 * wpi::math::pi * kWheelRadius /
-                                     kEncoderResolution);
 
-  // Set the distance (in this case, angle) per pulse for the turning encoder.
-  // This is the the angle through an entire rotation (2 * wpi::math::pi)
-  // divided by the encoder resolution.
-  m_turningEncoder.SetDistancePerPulse(2 * wpi::math::pi / kEncoderResolution);
+  // Set the conversion factor for the drive encoder to the distance (in meters)
+  // travelled for each full "tick" of the drive encoder.
+  m_driveMotor.GetEncoder().SetVelocityConversionFactor(
+      2 * wpi::math::pi * kWheelRadius / kDriveGearRatio / kEncoderResolution);
+
+  // Set the conversion factor for the turning encoder to the angle (in radians)
+  // that the module turns for each full "tick" of the turning encoder.
+  m_turningMotor.GetEncoder().SetPositionConversionFactor(
+      2 * wpi::math::pi / kTurningGearRatio / kEncoderResolution);
 
   // Limit the PID Controller's input range between -pi and pi and set the input
   // to be continuous.
@@ -28,21 +28,21 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
                                                units::radian_t(wpi::math::pi));
 }
 
-frc::SwerveModuleState SwerveModule::GetState() const {
-  return {units::meters_per_second_t{m_driveEncoder.GetRate()},
-          frc::Rotation2d(units::radian_t(m_turningEncoder.Get()))};
+frc::SwerveModuleState SwerveModule::GetState() {
+  return {units::meters_per_second_t{m_driveMotor.GetEncoder().GetVelocity()},
+          frc::Rotation2d(units::radian_t(m_turningMotor.GetEncoder().GetPosition()))};
 }
 
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState& state) {
   // Calculate the drive output from the drive PID controller.
   const auto driveOutput = m_drivePIDController.Calculate(
-      m_driveEncoder.GetRate(), state.speed.to<double>());
+      m_driveMotor.GetEncoder().GetVelocity(), state.speed.to<double>());
 
   const auto driveFeedforward = m_driveFeedforward.Calculate(state.speed);
 
   // Calculate the turning motor output from the turning PID controller.
   const auto turnOutput = m_turningPIDController.Calculate(
-      units::radian_t(m_turningEncoder.Get()), state.angle.Radians());
+      units::radian_t(m_turningMotor.GetEncoder().GetPosition()), state.angle.Radians());
 
   const auto turnFeedforward = m_turnFeedforward.Calculate(
       m_turningPIDController.GetSetpoint().velocity);
