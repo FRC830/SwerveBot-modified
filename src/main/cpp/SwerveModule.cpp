@@ -8,10 +8,12 @@
 #include <wpi/math>
 
 SwerveModule::SwerveModule(const int driveMotorChannel,
-                           const int turningMotorChannel)
+                           const int turningMotorChannel, std::string driveMotorName, std::string turningMotorName)
     : m_driveMotor(driveMotorChannel, rev::CANSparkMax::MotorType::kBrushless),
       m_turningMotor(turningMotorChannel, rev::CANSparkMax::MotorType::kBrushless) {
 
+  m_driveMotorName = driveMotorName;
+  m_turningMotorName = turningMotorName;
   m_driveMotor.RestoreFactoryDefaults();
   m_turningMotor.RestoreFactoryDefaults();
 

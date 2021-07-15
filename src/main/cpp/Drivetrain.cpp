@@ -18,10 +18,17 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
 
   auto [fl, fr, bl, br] = states;
 
+
   m_frontLeft.SetDesiredState(fl);
   m_frontRight.SetDesiredState(fr);
   m_backLeft.SetDesiredState(bl);
   m_backRight.SetDesiredState(br);
+
+  //Temporary Place to Output Values
+  m_frontLeft.OutputValues();
+  m_frontRight.OutputValues();
+  m_backLeft.OutputValues();
+  m_backRight.OutputValues();
 }
 
 void Drivetrain::UpdateOdometry() {

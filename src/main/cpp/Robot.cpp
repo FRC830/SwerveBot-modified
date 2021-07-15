@@ -15,7 +15,8 @@ class Robot : public frc::TimedRobot {
     m_swerve.UpdateOdometry();
   }
 
-  void TeleopPeriodic() override { DriveWithJoystick(false); }
+  void TeleopPeriodic() override {DriveWithJoystick(false);
+  }
 
  private:
   frc::XboxController m_controller{0};
