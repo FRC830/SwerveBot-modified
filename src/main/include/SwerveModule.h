@@ -32,7 +32,7 @@ class SwerveModule {
    std::string m_turningMotorName;
 
  public:
-  SwerveModule(int driveMotorChannel, int turningMotorChannel, std::string driveMotorName, std::string turningMotorName);
+  SwerveModule(int driveMotorChannel, int turningMotorChannel, std::string driveMotorName, std::string turningMotorName, int turningCANCoderChannel);
   frc::SwerveModuleState GetState();
   void SetDesiredState(const frc::SwerveModuleState& state);
 
@@ -40,17 +40,9 @@ class SwerveModule {
   // Motor Values
   rev::CANSparkMax m_driveMotor;
   rev::CANEncoder m_driveMotorEncoder = m_driveMotor.GetEncoder();
-  double m_driveMotorVelocity = m_driveMotorEncoder.GetVelocity();
-  double m_driveMotorRotations = m_driveMotorEncoder.GetPosition();
-  ctre::phoenix::sensors::CANCoder m_driveMotorCANCoder {55}; //arbitrary CANCoder id
-  double m_driveMotorAbsolutePosition = m_driveMotorCANCoder.GetAbsolutePosition();
-
   rev::CANSparkMax m_turningMotor;
   rev::CANEncoder m_turningMotorEncoder = m_turningMotor.GetEncoder();
-  double m_turningMotorVelocity = m_turningMotorEncoder.GetVelocity();
-  double m_turningMotorRotations = m_turningMotorEncoder.GetPosition();
-  ctre::phoenix::sensors::CANCoder m_turningMotorCANCoder {30}; //arbitrary id
-  double m_turningMotorAbsolutePosition = m_turningMotorCANCoder.GetAbsolutePosition();
+  ctre::phoenix::sensors::CANCoder m_turningMotorCANCoder; //arbitrary id
 
   frc2::PIDController m_drivePIDController{1.0, 0, 0};
   frc::ProfiledPIDController<units::radians> m_turningPIDController{
@@ -65,11 +57,10 @@ class SwerveModule {
       1_V, 0.5_V / 1_rad_per_s};
 
   void OutputValues(){ //Outputs all the SmartDashboard widgets when called
-      frc::SmartDashboard::PutNumber(m_driveMotorName + " Velocity: ", m_driveMotorVelocity);
-      frc::SmartDashboard::PutNumber(m_driveMotorName + " Rotations: ", m_driveMotorRotations);
-      frc::SmartDashboard::PutNumber(m_driveMotorName + " Absolute Position: ", m_driveMotorAbsolutePosition);
-      frc::SmartDashboard::PutNumber(m_turningMotorName + " Velocity: ", m_turningMotorVelocity);
-      frc::SmartDashboard::PutNumber(m_turningMotorName + " Rotations: ", m_turningMotorRotations);
-      frc::SmartDashboard::PutNumber(m_turningMotorName + " Absolute Position: ", m_turningMotorAbsolutePosition);
+      frc::SmartDashboard::PutNumber(m_driveMotorName + " Velocity: ", m_driveMotorEncoder.GetVelocity());
+      frc::SmartDashboard::PutNumber(m_driveMotorName + " Rotations: ", m_driveMotorEncoder.GetPosition());
+      frc::SmartDashboard::PutNumber(m_turningMotorName + " Velocity: ", m_turningMotorEncoder.GetVelocity());
+      frc::SmartDashboard::PutNumber(m_turningMotorName + " Rotations: ", m_turningMotorEncoder.GetPosition());
+      frc::SmartDashboard::PutNumber(m_turningMotorName + " Absolute Position: ", m_turningMotorCANCoder.GetAbsolutePosition());
   }
 };

@@ -8,9 +8,10 @@
 #include <wpi/math>
 
 SwerveModule::SwerveModule(const int driveMotorChannel,
-                           const int turningMotorChannel, std::string driveMotorName, std::string turningMotorName)
+                           const int turningMotorChannel, std::string driveMotorName, std::string turningMotorName, int turningCANCoderChannel)
     : m_driveMotor(driveMotorChannel, rev::CANSparkMax::MotorType::kBrushless),
-      m_turningMotor(turningMotorChannel, rev::CANSparkMax::MotorType::kBrushless) {
+      m_turningMotor(turningMotorChannel, rev::CANSparkMax::MotorType::kBrushless),
+      m_turningMotorCANCoder{turningCANCoderChannel} {
 
   m_driveMotorName = driveMotorName;
   m_turningMotorName = turningMotorName;
@@ -45,7 +46,7 @@ SwerveModule::SwerveModule(const int driveMotorChannel,
 
 frc::SwerveModuleState SwerveModule::GetState() {
   return {units::meters_per_second_t{m_driveMotor.GetEncoder().GetVelocity()},
-          frc::Rotation2d(units::radian_t(m_turningMotor.GetEncoder().GetPosition()))};
+          frc::Rotation2d(units::degree_t(m_turningMotorCANCoder.GetAbsolutePosition()))};
 }
 
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState& state) {
