@@ -46,7 +46,7 @@ class SwerveModule {
 
   frc2::PIDController m_drivePIDController{1.0, 0, 0};
   frc::ProfiledPIDController<units::radians> m_turningPIDController{
-      1.0,
+      2.0,
       0.0,
       0.0,
       {kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration}};

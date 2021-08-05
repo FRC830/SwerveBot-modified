@@ -51,17 +51,19 @@ frc::SwerveModuleState SwerveModule::GetState() {
 
 void SwerveModule::SetDesiredState(const frc::SwerveModuleState& state) {
   // Calculate the drive output from the drive PID controller.
-  const auto driveOutput = m_drivePIDController.Calculate(
-      m_driveMotor.GetEncoder().GetVelocity(), state.speed.to<double>());
+//   const auto driveOutput = m_drivePIDController.Calculate(
+//       m_driveMotor.GetEncoder().GetVelocity(), state.speed.to<double>());
+    const auto driveOutput = state.speed.to<double>();
+  frc::SmartDashboard::PutNumber(m_driveMotorName + " Output: ", driveOutput);
 
-  const auto driveFeedforward = m_driveFeedforward.Calculate(state.speed);
+//   const auto driveFeedforward = m_driveFeedforward.Calculate(state.speed);
 
   // Calculate the turning motor output from the turning PID controller.
   const auto turnOutput = m_turningPIDController.Calculate(
-      units::radian_t(m_turningMotor.GetEncoder().GetPosition()), state.angle.Radians());
+      units::degree_t(m_turningMotorCANCoder.GetAbsolutePosition()), state.angle.Radians());
 
-  const auto turnFeedforward = m_turnFeedforward.Calculate(
-      m_turningPIDController.GetSetpoint().velocity);
+//   const auto turnFeedforward = m_turnFeedforward.Calculate(
+//       m_turningPIDController.GetSetpoint().velocity);
 
   // Set the motor outputs.
   m_driveMotor.SetVoltage(units::volt_t{driveOutput});

@@ -33,6 +33,7 @@ class Robot : public frc::TimedRobot {
     // negative values when we push forward.
     const auto xSpeed = -m_xspeedLimiter.Calculate(
                             m_controller.GetY(frc::GenericHID::kLeftHand)) *
+                            // m_controller.GetTriggerAxis(frc::GenericHID::kLeftHand)) *
                         Drivetrain::kMaxSpeed;
 
     // Get the y speed or sideways/strafe speed. We are inverting this because
