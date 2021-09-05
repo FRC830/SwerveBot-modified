@@ -15,7 +15,12 @@ class Robot : public frc::TimedRobot {
     m_swerve.UpdateOdometry();
   }
 
-  void TeleopPeriodic() override {DriveWithJoystick(false);
+  void TeleopPeriodic() override {
+    DriveWithJoystick(false);
+
+    if (m_controller.GetAButtonPressed()) {
+
+    }
   }
 
  private:
@@ -39,7 +44,7 @@ class Robot : public frc::TimedRobot {
     // Get the y speed or sideways/strafe speed. We are inverting this because
     // we want a positive value when we pull to the left. Xbox controllers
     // return positive values when you pull to the right by default.
-    const auto ySpeed = -m_yspeedLimiter.Calculate(
+    const auto ySpeed = m_yspeedLimiter.Calculate(
                             m_controller.GetX(frc::GenericHID::kLeftHand)) *
                         Drivetrain::kMaxSpeed;
 
