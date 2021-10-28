@@ -5,11 +5,30 @@
 #include <frc/SlewRateLimiter.h>
 #include <frc/TimedRobot.h>
 #include <frc/XboxController.h>
+#include <ctre/Phoenix.h>
+#include <ctre/phoenix/motorcontrol/can/TalonFX.h>
+
 
 #include "Drivetrain.h"
 
 class Robot : public frc::TimedRobot {
  public:
+  void RobotInit() override{
+    ConfigurePIDF(belt, .03, 6E-05, 0, 0);
+	  belt.SetInverted(false);
+	  belt.SetNeutralMode(motorcontrol::NeutralMode::Brake);
+    /*=============
+    Flywheel
+    =============*/
+    ConfigurePIDF(flywheelMotor, .04, 6E-05, 0, 0);
+    flywheelMotorFollow.Follow(flywheelMotor);
+    flywheelMotorFollow.SetInverted(false);
+    flywheelMotor.ConfigClosedloopRamp(2);
+    flywheelMotor.SetInverted(true);
+    flywheelMotor.SetNeutralMode(motorcontrol::NeutralMode::Coast);
+    flywheelMotor.ConfigStatorCurrentLimit(StatorCurrentLimitConfiguration{true,20,30,0.5}); // if above 30A for .5s, limit to 20A
+      
+  }
   void AutonomousPeriodic() override {
     DriveWithJoystick(false);
     m_swerve.UpdateOdometry();
@@ -17,21 +36,49 @@ class Robot : public frc::TimedRobot {
 
   void TeleopPeriodic() override {
     DriveWithJoystick(false);
-
-    if (m_controller.GetAButtonPressed()) {
-
-    }
   }
 
  private:
+  static const frc::GenericHID::JoystickHand LEFT = frc::GenericHID::kLeftHand;
+  static const frc::GenericHID::JoystickHand RIGHT = frc::GenericHID::kRightHand;
+
   frc::XboxController m_controller{0};
+  frc::XboxController m_controllerCopilot{1};
+  
   Drivetrain m_swerve;
+  TalonSRX belt{7};
+  TalonFX flywheelMotor{10};
+  TalonFX flywheelMotorFollow{11};
 
   // Slew rate limiters to make joystick inputs more gentle; 1/3 sec from 0
   // to 1.
   frc::SlewRateLimiter<units::scalar> m_xspeedLimiter{3 / 1_s};
   frc::SlewRateLimiter<units::scalar> m_yspeedLimiter{3 / 1_s};
   frc::SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
+  
+  void ConfigurePIDF(TalonFX &motor, double p, double i, double d, double f, bool reset=true) {
+    if (reset) {
+      motor.ConfigFactoryDefault();
+    }
+    motor.Config_kP(0, p);
+    motor.Config_kI(0, i);
+    motor.Config_kD(0, d);
+    motor.Config_kF(0, f);
+  }
+
+  void ConfigurePIDF(TalonSRX &motor, double p, double i, double d, double f, bool reset=true) {
+    if (reset) {
+      motor.ConfigFactoryDefault();
+    }
+    motor.Config_kP(0, p);
+    motor.Config_kI(0, i);
+    motor.Config_kD(0, d);
+    motor.Config_kF(0, f);
+  }
+
+  double ApplyDeadzone(double val, double deadzone) {
+	  return fabs(val) < deadzone ? 0 : val;
+  }
 
   void DriveWithJoystick(bool fieldRelative) {
     // Get the x speed. We are inverting this because Xbox controllers return
@@ -57,6 +104,12 @@ class Robot : public frc::TimedRobot {
                      Drivetrain::kMaxAngularSpeed;
 
     m_swerve.Drive(xSpeed, ySpeed, rot, fieldRelative);
+
+
+    double manualBeltPower = ApplyDeadzone(-m_controllerCopilot.GetY(LEFT), .35);
+    if (manualBeltPower != 0) {
+      belt.Set(ControlMode::PercentOutput, manualBeltPower);
+    }
   }
 };
 
