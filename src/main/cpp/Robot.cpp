@@ -29,9 +29,22 @@ class Robot : public frc::TimedRobot {
     flywheelMotor.ConfigStatorCurrentLimit(StatorCurrentLimitConfiguration{true,20,30,0.5}); // if above 30A for .5s, limit to 20A
       
   }
+  void AutonomousInit() override {
+    timer.Reset();
+    timer.Start();
+  }
+
   void AutonomousPeriodic() override {
-    DriveWithJoystick(false);
-    m_swerve.UpdateOdometry();
+    frc::SmartDashboard::PutNumber("timer", timer.Get());
+    if (timer.Get() < 10){
+      m_swerve.Drive(units::velocity::meters_per_second_t(0), units::velocity::meters_per_second_t(0.5), units::angular_velocity::radians_per_second_t(0), false);
+    }
+    else{
+      m_swerve.Drive(units::velocity::meters_per_second_t(0), units::velocity::meters_per_second_t(0), units::angular_velocity::radians_per_second_t(0), false);
+    }
+    // DriveWithJoystick(false);
+    // m_swerve.UpdateOdometry();\[]
+
   }
 
   void TeleopPeriodic() override {
@@ -39,6 +52,7 @@ class Robot : public frc::TimedRobot {
   }
 
  private:
+  frc::Timer timer;
   static const frc::GenericHID::JoystickHand LEFT = frc::GenericHID::kLeftHand;
   static const frc::GenericHID::JoystickHand RIGHT = frc::GenericHID::kRightHand;
 
@@ -46,7 +60,7 @@ class Robot : public frc::TimedRobot {
   frc::XboxController m_controllerCopilot{1};
   
   Drivetrain m_swerve;
-  TalonSRX belt{7};
+  TalonSRX belt{5}; // The old id was 7
   TalonFX flywheelMotor{10};
   TalonFX flywheelMotorFollow{11};
 
@@ -84,7 +98,7 @@ class Robot : public frc::TimedRobot {
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
     const auto xSpeed = -m_xspeedLimiter.Calculate(
-                            -m_controller.GetY(frc::GenericHID::kLeftHand)) *
+                            ApplyDeadzone((-m_controller.GetY(frc::GenericHID::kLeftHand)), 0.1)) *
                             // m_controller.GetTriggerAxis(frc::GenericHID::kLeftHand)) *
                         Drivetrain::kMaxSpeed;
 
@@ -92,8 +106,9 @@ class Robot : public frc::TimedRobot {
     // we want a positive value when we pull to the left. Xbox controllers
     // return positive values when you pull to the right by default.
     const auto ySpeed = m_yspeedLimiter.Calculate(
-                            m_controller.GetX(frc::GenericHID::kLeftHand)) *
+                            ApplyDeadzone((m_controller.GetX(frc::GenericHID::kLeftHand)), 0.1)) *
                         Drivetrain::kMaxSpeed;
+
 
     // Get the rate of angular rotation. We are inverting this because we want a
     // positive value when we pull to the left (remember, CCW is positive in
@@ -102,14 +117,22 @@ class Robot : public frc::TimedRobot {
     const auto rot = -m_rotLimiter.Calculate(
                          m_controller.GetX(frc::GenericHID::kRightHand)) *
                      Drivetrain::kMaxAngularSpeed;
-
+    if (m_controllerCopilot.GetTriggerAxis(RIGHT) > 0.1)
+    {
+          flywheelMotor.Set(ControlMode::Velocity, (int) (4000 / (10.0 / 2048.0 * 60.0)));
+    }
+    else 
+    {
+          flywheelMotor.Set(ControlMode::Velocity, (int) (0));
+    }
     m_swerve.Drive(xSpeed, ySpeed, rot, fieldRelative);
 
 
     double manualBeltPower = ApplyDeadzone(-m_controllerCopilot.GetY(LEFT), .35);
-    if (manualBeltPower != 0) {
+    // if (manualBeltPower != 0) {
       belt.Set(ControlMode::PercentOutput, manualBeltPower);
-    }
+    // }
+
   }
 };
 

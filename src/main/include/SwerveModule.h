@@ -25,9 +25,9 @@ class SwerveModule {
   static constexpr double kTurningGearRatio = 12.8;
 
   static constexpr auto kModuleMaxAngularVelocity =
-      wpi::math::pi * 1_rad_per_s;  // radians per second
+      wpi::math::pi * 3_rad_per_s;  // radians per second
   static constexpr auto kModuleMaxAngularAcceleration =
-      wpi::math::pi * 2_rad_per_s / 1_s;  // radians per second^2
+      wpi::math::pi * 7_rad_per_s / 1_s;  // radians per second^2
    std::string m_driveMotorName;
    std::string m_turningMotorName;
 
@@ -46,7 +46,7 @@ class SwerveModule {
 
   frc2::PIDController m_drivePIDController{1.0, 0, 0};
   frc::ProfiledPIDController<units::radians> m_turningPIDController{
-      2.0,
+      4.0,
       0.0,
       0.0,
       {kModuleMaxAngularVelocity, kModuleMaxAngularAcceleration}};
