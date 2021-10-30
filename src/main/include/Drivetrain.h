@@ -33,7 +33,7 @@ class Drivetrain {
   static constexpr units::radians_per_second_t kMaxAngularSpeed{
       wpi::math::pi * 2};  // 1/2 rotation per second
 
- private:
+ public:
   frc::Translation2d m_frontLeftLocation{+0.381_m, +0.381_m};
   frc::Translation2d m_frontRightLocation{+0.381_m, -0.381_m};
   frc::Translation2d m_backLeftLocation{-0.381_m, +0.381_m};

@@ -36,11 +36,20 @@ class Robot : public frc::TimedRobot {
 
   void AutonomousPeriodic() override {
     frc::SmartDashboard::PutNumber("timer", timer.Get());
-    if (timer.Get() < 10){
-      m_swerve.Drive(units::velocity::meters_per_second_t(0), units::velocity::meters_per_second_t(0.5), units::angular_velocity::radians_per_second_t(0), false);
+    if (timer.Get() < 2){
+      m_swerve.m_frontLeft.m_driveMotor.Set(0.4);
+      m_swerve.m_frontRight.m_driveMotor.Set(0.4);
+      m_swerve.m_backLeft.m_driveMotor.Set(0.4);
+      m_swerve.m_backRight.m_driveMotor.Set(0.4);
+      // m_swerve.Drive(units::velocity::meters_per_second_t(0), units::velocity::meters_per_second_t(0.5), units::angular_velocity::radians_per_second_t(0), false);
     }
     else{
-      m_swerve.Drive(units::velocity::meters_per_second_t(0), units::velocity::meters_per_second_t(0), units::angular_velocity::radians_per_second_t(0), false);
+      m_swerve.m_frontLeft.m_driveMotor.Set(0);
+      m_swerve.m_frontRight.m_driveMotor.Set(0);
+      m_swerve.m_backLeft.m_driveMotor.Set(0);
+      m_swerve.m_backRight.m_driveMotor.Set(0);
+
+      // m_swerve.Drive(units::velocity::meters_per_second_t(0), units::velocity::meters_per_second_t(0), units::angular_velocity::radians_per_second_t(0), false);
     }
     // DriveWithJoystick(false);
     // m_swerve.UpdateOdometry();\[]
