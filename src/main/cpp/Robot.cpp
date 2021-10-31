@@ -28,6 +28,13 @@ class Robot : public frc::TimedRobot {
     flywheelMotor.SetNeutralMode(motorcontrol::NeutralMode::Coast);
     flywheelMotor.ConfigStatorCurrentLimit(StatorCurrentLimitConfiguration{true,20,30,0.5}); // if above 30A for .5s, limit to 20A
       
+    /*=============
+    Elevator
+    =============*/
+    elevatorMotor.ConfigFactoryDefault();
+    elevatorMotor.SetInverted(true);
+    elevatorMotor.SetSelectedSensorPosition(0);
+    elevatorMotor.SetNeutralMode(motorcontrol::NeutralMode::Brake);
   }
   void AutonomousInit() override {
     timer.Reset();
@@ -55,9 +62,15 @@ class Robot : public frc::TimedRobot {
     // m_swerve.UpdateOdometry();\[]
 
   }
-
+  void TeleopInit() {
+    // reset elevator
+    inputScale = 1.0;
+    elevatorMotor.SetSelectedSensorPosition(0);
+  }
   void TeleopPeriodic() override {
     DriveWithJoystick(false);
+    
+	  HandleElevator();
   }
 
  private:
@@ -79,6 +92,15 @@ class Robot : public frc::TimedRobot {
   frc::SlewRateLimiter<units::scalar> m_yspeedLimiter{3 / 1_s};
   frc::SlewRateLimiter<units::scalar> m_rotLimiter{3 / 1_s};
   
+  //Elevator variables 
+  int elevatorBreaksPoint = 600000;
+  int maxElevatorUp = 300000;
+  int minElevatorDown = 250000;
+  double elevatorSpeedUp = 0.75;
+  double elevatorSpeedDown = 0.6;
+  TalonFX elevatorMotor{18};
+  double inputScale = 1.0;
+
   void ConfigurePIDF(TalonFX &motor, double p, double i, double d, double f, bool reset=true) {
     if (reset) {
       motor.ConfigFactoryDefault();
@@ -141,6 +163,28 @@ class Robot : public frc::TimedRobot {
     // if (manualBeltPower != 0) {
       belt.Set(ControlMode::PercentOutput, manualBeltPower);
     // }
+
+  }
+
+  void HandleElevator() {
+    double encoder = elevatorMotor.GetSelectedSensorPosition();
+    //debugTab->PutNumber("elevator encoder", encoder);
+    bool down = ApplyDeadzone(m_controller.GetTriggerAxis(LEFT), 0.1) > 0;
+    bool up = ApplyDeadzone(m_controller.GetTriggerAxis(RIGHT), 0.1) > 0;
+    bool scaryReverse = m_controller.GetBackButton();
+    if (encoder > minElevatorDown) {
+      inputScale = 0.5; // slow down driving when completely extended
+    }
+    if (up && (encoder < maxElevatorUp) && (encoder < elevatorBreaksPoint)) {
+      elevatorMotor.Set(ControlMode::PercentOutput, elevatorSpeedUp);
+    } else if (down && (encoder > minElevatorDown) && (encoder < elevatorBreaksPoint)) {
+      elevatorMotor.Set(ControlMode::PercentOutput, elevatorSpeedDown);	
+    } else if (scaryReverse) {
+      elevatorMotor.Set(ControlMode::PercentOutput, -elevatorSpeedDown);
+    } else {
+      elevatorMotor.Set(ControlMode::PercentOutput, 0);
+    }
+
 
   }
 };
