@@ -14,6 +14,7 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
   frc::SmartDashboard::PutNumber("gyro pitch", m_gyro->GetPitch());
   frc::SmartDashboard::PutNumber("gyro roll", m_gyro->GetRoll());
   frc::Rotation2d gyroRotation = units::degree_t{-m_gyro->GetAngle()};
+  //calculate how we want to move the wheels
   auto states = m_kinematics.ToSwerveModuleStates(
       fieldRelative ? frc::ChassisSpeeds::FromFieldRelativeSpeeds(
                           xSpeed, ySpeed, rot, gyroRotation)
@@ -23,7 +24,14 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
 
   auto [fl, fr, bl, br] = states;
 
+  //optimize to be inversion aware
+  fl = frc::SwerveModuleState::Optimize(fl, frc::Rotation2d(units::degree_t(m_frontLeft.m_turningMotorCANCoder.GetAbsolutePosition())));
+  fr = frc::SwerveModuleState::Optimize(fr, frc::Rotation2d(units::degree_t(m_frontRight.m_turningMotorCANCoder.GetAbsolutePosition())));
+  bl = frc::SwerveModuleState::Optimize(bl, frc::Rotation2d(units::degree_t(m_backLeft.m_turningMotorCANCoder.GetAbsolutePosition())));
+  br = frc::SwerveModuleState::Optimize(br, frc::Rotation2d(units::degree_t(m_backRight.m_turningMotorCANCoder.GetAbsolutePosition())));
+/************************************************/
 
+  //actually move the wheels
   m_frontLeft.SetDesiredState(fl);
   m_frontRight.SetDesiredState(fr);
   m_backLeft.SetDesiredState(bl);
