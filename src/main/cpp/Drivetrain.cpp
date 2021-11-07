@@ -7,7 +7,11 @@
 
 void Drivetrain::Drive(units::meters_per_second_t xSpeed,
                        units::meters_per_second_t ySpeed,
-                       units::radians_per_second_t rot, bool fieldRelative) {
+                       units::radians_per_second_t rot, 
+                       bool fieldRelative, bool isZero) {
+
+
+
 
   frc::SmartDashboard::PutNumber("gyro angle", m_gyro->GetAngle());
   frc::SmartDashboard::PutNumber("gyro yaw", m_gyro->GetYaw());
@@ -30,6 +34,15 @@ void Drivetrain::Drive(units::meters_per_second_t xSpeed,
   bl = frc::SwerveModuleState::Optimize(bl, frc::Rotation2d(units::degree_t(m_backLeft.m_turningMotorCANCoder.GetAbsolutePosition())));
   br = frc::SwerveModuleState::Optimize(br, frc::Rotation2d(units::degree_t(m_backRight.m_turningMotorCANCoder.GetAbsolutePosition())));
 /************************************************/
+
+  if (isZero)
+  {
+    m_frontLeft.stop();
+    m_frontRight.stop();
+    m_backLeft.stop();
+    m_backRight.stop();
+    return;
+  }
 
   //actually move the wheels
   m_frontLeft.SetDesiredState(fl);
