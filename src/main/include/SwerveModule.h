@@ -35,6 +35,7 @@ class SwerveModule {
   SwerveModule(int driveMotorChannel, int turningMotorChannel, std::string driveMotorName, std::string turningMotorName, int turningCANCoderChannel);
   frc::SwerveModuleState GetState();
   void SetDesiredState(const frc::SwerveModuleState& state);
+  void stop();
 
 
   // Motor Values

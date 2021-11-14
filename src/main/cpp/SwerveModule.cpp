@@ -64,8 +64,13 @@ void SwerveModule::SetDesiredState(const frc::SwerveModuleState& state) {
 
 //   const auto turnFeedforward = m_turnFeedforward.Calculate(
 //       m_turningPIDController.GetSetpoint().velocity);
-
   // Set the motor outputs.
   m_driveMotor.SetVoltage(units::volt_t{driveOutput});
   m_turningMotor.SetVoltage(units::volt_t{turnOutput});
+}
+
+void SwerveModule::stop(){
+   m_driveMotor.SetVoltage(units::volt_t{0.0});
+   m_turningMotor.SetVoltage(units::volt_t{0.0});
+
 }

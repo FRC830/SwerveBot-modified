@@ -128,7 +128,7 @@ class Robot : public frc::TimedRobot {
   void DriveWithJoystick(bool fieldRelative) {
     // Get the x speed. We are inverting this because Xbox controllers return
     // negative values when we push forward.
-    const auto xSpeed = -m_xspeedLimiter.Calculate(
+    const units::velocity::meters_per_second_t xSpeed = -m_xspeedLimiter.Calculate(
                             ApplyDeadzone((-m_controller.GetY(frc::GenericHID::kLeftHand)), 0.1)) *
                             // m_controller.GetTriggerAxis(frc::GenericHID::kLeftHand)) *
                         Drivetrain::kMaxSpeed;
@@ -156,8 +156,13 @@ class Robot : public frc::TimedRobot {
     {
           flywheelMotor.Set(ControlMode::Velocity, (int) (0));
     }
-    m_swerve.Drive(xSpeed, ySpeed, rot, fieldRelative);
+    
+    // This expression should make it so that the wheels
+    // will not turn back towards the front when the pilot'
+    // controls aren't receiving any input
 
+
+    m_swerve.Drive(xSpeed, ySpeed, rot, fieldRelative, (xSpeed == 0_mps && ySpeed == 0_mps && rot == 0_rad_per_s));
 
     double manualBeltPower = ApplyDeadzone(-m_controllerCopilot.GetY(LEFT), .35);
     // if (manualBeltPower != 0) {
