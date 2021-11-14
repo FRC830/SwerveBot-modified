@@ -7,6 +7,7 @@
 #include <frc/XboxController.h>
 #include <ctre/Phoenix.h>
 #include <ctre/phoenix/motorcontrol/can/TalonFX.h>
+#include <frc/smartdashboard/SendableChooser.h>
 
 
 #include "Drivetrain.h"
@@ -31,30 +32,39 @@ class Robot : public frc::TimedRobot {
   }
   void AutonomousInit() override {
     timer.Reset();
-    timer.Start();
   }
 
   void AutonomousPeriodic() override {
-    frc::SmartDashboard::PutNumber("timer", timer.Get());
-    if (timer.Get() < 2){
-      m_swerve.m_frontLeft.m_driveMotor.Set(0.4);
-      m_swerve.m_frontRight.m_driveMotor.Set(0.4);
-      m_swerve.m_backLeft.m_driveMotor.Set(0.4);
-      m_swerve.m_backRight.m_driveMotor.Set(0.4);
-      // m_swerve.Drive(units::velocity::meters_per_second_t(0), units::velocity::meters_per_second_t(0.5), units::angular_velocity::radians_per_second_t(0), false);
-    }
-    else{
-      m_swerve.m_frontLeft.m_driveMotor.Set(0);
-      m_swerve.m_frontRight.m_driveMotor.Set(0);
-      m_swerve.m_backLeft.m_driveMotor.Set(0);
-      m_swerve.m_backRight.m_driveMotor.Set(0);
+    //Old Auton Code
+    frc::SendableChooser<std::string> autonChooser;
+    std::string noneAuton = "Nothing"; // Don't do anything
+    std::string simpleAuton = "Simple"; // Simply move off the line
+    autonChooser.SetDefaultOption(simpleAuton, simpleAuton);
+	  // autonChooser.AddOption(,);
 
-      // m_swerve.Drive(units::velocity::meters_per_second_t(0), units::velocity::meters_per_second_t(0), units::angular_velocity::radians_per_second_t(0), false);
+    std::string currentAutonMode = autonChooser.GetSelected();
+    if (currentAutonMode == noneAuton){
+      // do nothing
+      }
+    else if (currentAutonMode == simpleAuton){
+      timer.Start();
+      frc::SmartDashboard::PutNumber("timer", timer.Get());
+      if (timer.Get() < 2){
+        m_swerve.m_frontLeft.m_driveMotor.Set(0.4);
+        m_swerve.m_frontRight.m_driveMotor.Set(0.4);
+        m_swerve.m_backLeft.m_driveMotor.Set(0.4);
+        m_swerve.m_backRight.m_driveMotor.Set(0.4);
+        }
+      else{
+        m_swerve.m_frontLeft.m_driveMotor.Set(0);
+        m_swerve.m_frontRight.m_driveMotor.Set(0);
+        m_swerve.m_backLeft.m_driveMotor.Set(0);
+        m_swerve.m_backRight.m_driveMotor.Set(0);
+        }
+      }  
     }
-    // DriveWithJoystick(false);
-    // m_swerve.UpdateOdometry();\[]
 
-  }
+  
 
   void TeleopPeriodic() override {
     DriveWithJoystick(false);
